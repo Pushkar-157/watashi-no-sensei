@@ -1,0 +1,232 @@
+/* theme.css - colours, fonts, base element styles, buttons and animations.
+   Change the look of the whole app by editing the variables below. */
+
+:root {
+  /* Warm cream surfaces */
+  --cream: #FFF8EC;       /* page background */
+  --cream-deep: #FBEEDA;  /* sidebar */
+  --paper: #FFFDF8;       /* cards, composer */
+  --line: #EADCC4;        /* borders */
+
+  /* Text */
+  --ink: #2A2018;
+  --ink-soft: #6A5A49;
+
+  /* Orange accents. --orange has 5:1 contrast with white text. */
+  --orange: #C2410C;
+  --orange-hover: #9A3412;
+  --orange-bright: #F97316;   /* highlights, focus rings */
+  --orange-tint: #FFEDD5;     /* soft backgrounds */
+
+  /* Status colours */
+  --ok: #3F7D4E;
+  --wait: #B7791F;
+  --bad: #B42318;
+  --bad-tint: #FDECEA;
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(120, 70, 20, 0.08), 0 8px 24px rgba(120, 70, 20, 0.09);
+
+  /* Nunito for Latin text. Zen Maru Gothic (rounded) covers Japanese. */
+  --font-body: "Nunito", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  --font-display: "Zen Maru Gothic", "Nunito", "Hiragino Maru Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* A clear keyboard focus ring everywhere. */
+:focus-visible {
+  outline: 3px solid var(--orange-bright);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font-weight: 700;
+  transition: background 0.15s, transform 0.15s var(--ease), box-shadow 0.15s;
+}
+.btn-primary:hover {
+  background: var(--orange-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(154, 52, 18, 0.28);
+}
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn-small {
+  padding: 7px 14px;
+  font-size: 0.9rem;
+}
+
+.btn-quiet,
+.btn-danger {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-quiet {
+  color: var(--ink-soft);
+}
+.btn-quiet:hover {
+  background: rgba(194, 65, 12, 0.1);
+}
+.btn-danger {
+  color: var(--bad);
+}
+.btn-danger:hover {
+  background: var(--bad-tint);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--ink-soft);
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover {
+  background: var(--orange-tint);
+  color: var(--orange);
+}
+
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  transition: background 0.15s, color 0.15s;
+}
+.chip-btn:hover {
+  background: var(--orange-tint);
+  color: var(--orange);
+}
+
+/* ---------- The seal: a small red-orange stamp with the character 先 (teacher) ---------- */
+
+.seal {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1;
+  transform: rotate(-5deg);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35), 0 2px 6px rgba(154, 52, 18, 0.3);
+}
+.seal-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes message-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+@keyframes blink {
+  to { visibility: hidden; }
+}
+@keyframes pulse {
+  50% { opacity: 0.35; }
+}
+@keyframes shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Respect people who ask their device for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

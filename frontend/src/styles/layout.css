@@ -1,0 +1,300 @@
+/* layout.css - the page frame: sidebar, top bar and responsive behaviour. */
+
+.app {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  height: 100dvh;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 18px 14px 14px;
+  background: var(--cream-deep);
+  border-right: 1px solid var(--line);
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.sidebar-close {
+  display: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+.brand-jp {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.new-chat {
+  width: 100%;
+}
+
+.history {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 -6px;
+  padding: 0 6px;
+}
+.history-heading {
+  margin: 4px 10px 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.history ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.convo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.convo:hover,
+.convo:focus-within {
+  background: rgba(194, 65, 12, 0.07);
+}
+.convo.is-active {
+  background: var(--orange-tint);
+}
+/* A thin orange bar marks the open chat. */
+.convo.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--orange);
+}
+.convo-main {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: var(--radius-sm);
+}
+.convo-title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+}
+.convo.is-active .convo-title {
+  font-weight: 700;
+}
+.convo-delete {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  opacity: 0;
+}
+.convo:hover .convo-delete,
+.convo:focus-within .convo-delete {
+  opacity: 1;
+}
+.convo-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+.convo-confirm span {
+  margin-right: auto;
+}
+
+.sidebar-note {
+  margin: 0;
+  padding: 0 8px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* The dark overlay only exists on small screens (see below). */
+.scrim {
+  display: none;
+}
+
+/* ---------- Main column and top bar ---------- */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--cream);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.menu-btn {
+  display: none;
+}
+.topbar-title {
+  display: none;
+  margin-right: auto;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+/* On desktop the picker and status sit on the right. */
+.model-picker {
+  margin-left: auto;
+}
+.topbar-title + .model-picker {
+  margin-left: 0;
+}
+
+.model-picker select {
+  appearance: none;
+  max-width: 220px;
+  padding: 8px 34px 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%236A5A49' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 13px center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.model-picker select:hover {
+  border-color: var(--orange-bright);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--wait);
+}
+.status-pill[data-tone="ok"] .status-dot {
+  background: var(--ok);
+}
+.status-pill[data-tone="bad"] .status-dot {
+  background: var(--bad);
+}
+.status-pill[data-tone="wait"] .status-dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.banner-slot {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 14px 20px 0;
+}
+
+/* ---------- Small screens: the sidebar becomes a slide-in drawer ---------- */
+
+@media (max-width: 860px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 30;
+    width: min(320px, 86vw);
+    transform: translateX(-102%);
+    visibility: hidden;
+    transition: transform 0.28s var(--ease), visibility 0s linear 0.28s;
+    box-shadow: var(--shadow);
+  }
+  .sidebar.is-open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.28s var(--ease), visibility 0s;
+  }
+  .sidebar-close {
+    display: inline-grid;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(42, 32, 24, 0.38);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .scrim.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-btn,
+  .topbar-title {
+    display: inline-grid;
+  }
+  .topbar-title {
+    display: block;
+  }
+  .topbar {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .status-label {
+    display: none;
+  }
+  .status-pill {
+    padding: 9px;
+  }
+  .model-picker select {
+    max-width: 150px;
+  }
+}

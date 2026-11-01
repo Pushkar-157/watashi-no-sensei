@@ -1,0 +1,98 @@
+"""
+ollama_service.py - all communication with Ollama lives here.
+
+The rest of the app never imports `ollama` directly. If Ollama fails, this
+module converts the failure into a ChatError with a friendly message.
+"""
+
+from typing import Iterator
+
+import httpx
+import ollama
+
+import config
+from prompts import SYSTEM_PROMPT
+
+# One shared client. The host and timeout come from config.py (.env).
+_client = ollama.Client(host=config.OLLAMA_HOST, timeout=config.OLLAMA_TIMEOUT)
+
+
+class ChatError(Exception):
+    """A problem talking to Ollama, with a code for the UI and a friendly message."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+def _translate_error(exc: Exception, model: str) -> ChatError:
+    """Turn any exception from the Ollama SDK into a ChatError."""
+    if isinstance(exc, ChatError):
+        return exc
+
+    # Ollama is not running (or the address in OLLAMA_HOST is wrong).
+    if isinstance(exc, (ConnectionError, httpx.ConnectError)):
+        return ChatError(
+            "ollama_unreachable",
+            "I can't reach Ollama. Open the Ollama app (or run `ollama serve`) "
+            "and try again.",
+        )
+
+    # Ollama took too long to answer.
+    if isinstance(exc, httpx.TimeoutException):
+        return ChatError(
+            "timeout",
+            "Ollama took too long to answer. The model may still be loading, "
+            "so please try again in a moment.",
+        )
+
+    # Ollama answered, but with an error.
+    if isinstance(exc, ollama.ResponseError):
+        if exc.status_code == 404:
+            return ChatError(
+                "model_not_found",
+                f"The model \"{model}\" isn't installed yet. "
+                f"Run `ollama pull {model}` in a terminal, or pick another model.",
+            )
+        return ChatError("model_error", f"The model reported a problem: {exc.error}")
+
+    return ChatError("unknown", "Something went wrong. Please try again.")
+
+
+def stream_reply(messages: list[dict], model: str | None = None) -> Iterator[str]:
+    """Send the conversation to Ollama and yield the reply piece by piece."""
+    model = model or config.OLLAMA_MODEL
+
+    # The system prompt always comes first (see prompts.py).
+    full_conversation = [{"role": "system", "content": SYSTEM_PROMPT}, *messages]
+
+    try:
+        stream = _client.chat(
+            model=model,
+            messages=full_conversation,
+            stream=True,
+            options={
+                "temperature": config.OLLAMA_TEMPERATURE,
+                "num_ctx": config.OLLAMA_NUM_CTX,
+            },
+        )
+        for chunk in stream:
+            piece = chunk.message.content
+            if piece:
+                yield piece
+    except Exception as exc:  # noqa: BLE001 - converted to a friendly ChatError
+        raise _translate_error(exc, model) from exc
+
+
+def list_models() -> list[str]:
+    """Return the names of the models installed in Ollama (also tests the connection)."""
+    try:
+        return sorted(m.model for m in _client.list().models)
+    except Exception as exc:  # noqa: BLE001
+        raise _translate_error(exc, "") from exc
+
+
+def is_installed(model: str, installed: list[str]) -> bool:
+    """True if `model` is installed. "llama3.2" matches "llama3.2:latest"."""
+    return model in installed or f"{model}:latest" in installed

@@ -1,0 +1,360 @@
+/* chat.css - messages, welcome screen, composer and banners. */
+
+/* ---------- Conversation area ---------- */
+
+.chat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.chat-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: 100%;
+  max-width: 760px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 28px 20px 12px;
+}
+
+.message {
+  display: flex;
+  gap: 12px;
+  animation: message-in 0.32s var(--ease) both;
+}
+.message-user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: min(82%, 560px);
+  padding: 10px 16px;
+  border-radius: 20px 20px 6px 20px;
+  background: var(--orange-tint);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.message-assistant .seal {
+  margin-top: 2px;
+}
+.assistant-body {
+  flex: 1;
+  min-width: 0;
+}
+.assistant-name {
+  margin-bottom: 2px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.message-actions {
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.message:hover .message-actions,
+.message-actions:focus-within {
+  opacity: 1;
+}
+@media (hover: none) {
+  .message-actions,
+  .convo-delete {
+    opacity: 1;
+  }
+}
+
+/* "Sensei is typing" dots */
+.typing {
+  display: inline-flex;
+  gap: 5px;
+  padding: 12px 0;
+}
+.typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange-bright);
+  animation: bounce 1.2s ease-in-out infinite;
+}
+.typing span:nth-child(2) { animation-delay: 0.15s; }
+.typing span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---------- Markdown inside the teacher's replies ---------- */
+
+.markdown {
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child { margin-top: 0; }
+.markdown > :last-child { margin-bottom: 0; }
+.markdown p { margin: 0.6em 0; }
+.markdown ul,
+.markdown ol { margin: 0.6em 0; padding-left: 1.3em; }
+.markdown li { margin: 0.25em 0; }
+.markdown li::marker { color: var(--orange); }
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  margin: 1em 0 0.4em;
+  font-family: var(--font-display);
+  line-height: 1.3;
+}
+.markdown h1 { font-size: 1.3rem; }
+.markdown h2 { font-size: 1.15rem; }
+.markdown h3 { font-size: 1.05rem; }
+.markdown hr { margin: 1em 0; border: 0; border-top: 1px solid var(--line); }
+.markdown blockquote {
+  margin: 0.8em 0;
+  padding: 0.1em 1em;
+  border-left: 3px solid var(--orange-bright);
+  color: var(--ink-soft);
+}
+.markdown a { color: var(--orange); }
+.markdown code,
+.banner code {
+  padding: 0.1em 0.4em;
+  border-radius: 6px;
+  background: var(--orange-tint);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+.markdown pre {
+  margin: 0.8em 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.markdown pre code {
+  padding: 0;
+  background: none;
+}
+
+.table-wrap {
+  margin: 0.8em 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.markdown th,
+.markdown td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.markdown th { background: var(--orange-tint); font-weight: 700; }
+.markdown tr:last-child td { border-bottom: 0; }
+
+/* A blinking block follows the text while the reply is still arriving. */
+.markdown.is-streaming > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+  background: var(--orange-bright);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+/* ---------- Welcome screen ---------- */
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: auto;
+  padding: 4vh 0 2vh;
+  text-align: center;
+  animation: message-in 0.5s var(--ease) both;
+}
+.welcome p { margin: 0; }
+.welcome-jp {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 10vw, 4.75rem);
+  line-height: 1.15;
+  color: var(--orange);
+}
+.welcome-romaji { font-size: 1.1rem; font-weight: 700; }
+.welcome-en { color: var(--ink-soft); }
+.welcome-lead {
+  max-width: 34ch;
+  margin-top: 20px !important;
+  font-size: 1.05rem;
+}
+
+.suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 22px;
+}
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  transition: transform 0.15s var(--ease), border-color 0.15s, box-shadow 0.15s;
+}
+.suggestion:hover:not(:disabled) {
+  border-color: var(--orange-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.suggestion-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--orange-tint);
+  color: var(--orange);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+@media (max-width: 520px) {
+  .suggestions { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Banners (errors and notices) ---------- */
+
+.banner {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid;
+  border-radius: var(--radius);
+  animation: message-in 0.25s var(--ease) both;
+}
+.banner[data-tone="error"] {
+  background: var(--bad-tint);
+  border-color: #f3c6c1;
+  color: #5b1710;
+}
+.banner[data-tone="notice"] {
+  background: var(--orange-tint);
+  border-color: #f8cfa0;
+  color: #4a2410;
+}
+.banner-body { flex: 1; min-width: 0; }
+.banner-title { font-weight: 700; }
+.banner-text { font-size: 0.95rem; }
+.banner[data-tone="error"] code { background: #f9d6d2; }
+.banner[data-tone="notice"] code { background: #ffdcb4; }
+.banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ---------- Composer ---------- */
+
+.composer-wrap {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 8px 20px 14px;
+}
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 8px 8px 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 28px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.composer:focus-within {
+  border-color: var(--orange-bright);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.18), var(--shadow);
+}
+.composer.is-nudged {
+  animation: shake 0.4s;
+}
+.composer textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 200px;
+  padding: 9px 0;
+  border: 0;
+  outline: none; /* the whole composer shows the focus ring instead */
+  background: transparent;
+  resize: none;
+  line-height: 1.5;
+}
+.composer textarea::placeholder {
+  color: #9a8870;
+}
+
+.send-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  transition: background 0.15s, transform 0.15s var(--ease);
+}
+.send-btn:hover:not(:disabled) {
+  background: var(--orange-hover);
+  transform: scale(1.06);
+}
+.send-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.send-btn:disabled {
+  background: var(--line);
+  color: #a8957c;
+}
+.send-btn.is-stop {
+  background: var(--ink);
+}
+.send-btn.is-stop:hover {
+  background: #4a3a2c;
+}
+
+.composer-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.composer-hint .over {
+  color: var(--bad);
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .chat-inner { padding: 20px 14px 8px; gap: 22px; }
+  .composer-wrap { padding: 6px 12px 10px; }
+  .composer-hint span:first-child { display: none; }
+}
