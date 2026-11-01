@@ -30,8 +30,8 @@ def _get_int(name: str, default: int) -> int:
 
 
 # ---- Ollama -------------------------------------------------------------
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "https://ollama.com")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4:31b")
 OLLAMA_TIMEOUT = _get_float("OLLAMA_TIMEOUT", 120)
 OLLAMA_TEMPERATURE = _get_float("OLLAMA_TEMPERATURE", 0.7)
 OLLAMA_NUM_CTX = _get_int("OLLAMA_NUM_CTX", 4096)
