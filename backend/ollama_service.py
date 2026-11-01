@@ -13,8 +13,17 @@ import ollama
 import config
 from prompts import SYSTEM_PROMPT
 
-# One shared client. The host and timeout come from config.py (.env).
-_client = ollama.Client(host=config.OLLAMA_HOST, timeout=config.OLLAMA_TIMEOUT)
+def _client() -> ollama.Client:
+    """Create SDK client with credentials loaded from server environment."""
+    headers = None
+    if config.OLLAMA_HOST.rstrip("/") == "https://ollama.com":
+        import os
+
+        api_key = os.getenv("OLLAMA_API_KEY")
+        if not api_key:
+            raise ChatError("ollama_auth", "OLLAMA_API_KEY is not configured on the backend.")
+        headers = {"Authorization": f"Bearer {api_key}"}
+    return ollama.Client(host=config.OLLAMA_HOST, timeout=config.OLLAMA_TIMEOUT, headers=headers)
 
 
 class ChatError(Exception):
@@ -35,25 +44,24 @@ def _translate_error(exc: Exception, model: str) -> ChatError:
     if isinstance(exc, (ConnectionError, httpx.ConnectError)):
         return ChatError(
             "ollama_unreachable",
-            "I can't reach Ollama. Open the Ollama app (or run `ollama serve`) "
-            "and try again.",
+            "I can't reach Ollama Cloud right now. Please try again shortly.",
         )
 
     # Ollama took too long to answer.
     if isinstance(exc, httpx.TimeoutException):
         return ChatError(
             "timeout",
-            "Ollama took too long to answer. The model may still be loading, "
-            "so please try again in a moment.",
+            "Ollama Cloud took too long to answer. Please try again in a moment.",
         )
 
     # Ollama answered, but with an error.
     if isinstance(exc, ollama.ResponseError):
+        if exc.status_code in (401, 403):
+            return ChatError("ollama_auth", "Ollama Cloud authentication failed. Check the OLLAMA_API_KEY setting.")
         if exc.status_code == 404:
             return ChatError(
                 "model_not_found",
-                f"The model \"{model}\" isn't installed yet. "
-                f"Run `ollama pull {model}` in a terminal, or pick another model.",
+                f'The cloud model "{model}" was not found. Check the OLLAMA_MODEL setting.',
             )
         return ChatError("model_error", f"The model reported a problem: {exc.error}")
 
@@ -68,7 +76,7 @@ def stream_reply(messages: list[dict], model: str | None = None) -> Iterator[str
     full_conversation = [{"role": "system", "content": SYSTEM_PROMPT}, *messages]
 
     try:
-        stream = _client.chat(
+        stream = _client().chat(
             model=model,
             messages=full_conversation,
             stream=True,
@@ -88,7 +96,7 @@ def stream_reply(messages: list[dict], model: str | None = None) -> Iterator[str
 def list_models() -> list[str]:
     """Return the names of the models installed in Ollama (also tests the connection)."""
     try:
-        return sorted(m.model for m in _client.list().models)
+        return sorted(m.model for m in _client().list().models)
     except Exception as exc:  # noqa: BLE001
         raise _translate_error(exc, "") from exc
 
